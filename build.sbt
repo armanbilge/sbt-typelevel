@@ -17,7 +17,7 @@ ThisBuild / developers := List(
 
 lazy val root = project
   .in(file("."))
-  .enablePlugins(NoPublishPlugin)
+  .enablePlugins(TypelevelCiCrossPlugin, NoPublishPlugin)
   .aggregate(
     kernel,
     noPublish,
