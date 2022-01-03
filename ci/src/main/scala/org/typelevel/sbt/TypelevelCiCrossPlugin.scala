@@ -17,12 +17,19 @@
 package org.typelevel.sbt
 
 import sbt._, Keys._
+import org.scalajs.sbtplugin.ScalaJSPlugin
 
 object TypelevelCiCrossPlugin extends AutoPlugin {
 
   override def trigger = noTrigger
 
+  import ScalaJSPlugin.autoImport._
+
   override def derivedProjects(proj: ProjectDefinition[_]) = {
+
+    val projects = proj.aggregate.map(_.asInstanceOf[ProjectReference])
+    val jsProjects = projects
+      .map(p => (p / scalaJSUseMainModuleInitializer).?.value)
 
     Seq(
       Project("rootJVM", file(".jvm"))
