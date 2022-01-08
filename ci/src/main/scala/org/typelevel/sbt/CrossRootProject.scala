@@ -22,17 +22,18 @@ import TypelevelCiPlugin.ciCommands
 import TypelevelKernelPlugin.mkCommand
 
 /**
- * Simultaneously creates a `root`, `rootJVM`, `rootJS`, and `rootNative` project, and
+ * Simultaneously creates `root`, `rootJVM`, `rootJS`, and `rootNative` projects as needed, and
  * automatically enables the `NoPublishPlugin`.
  */
 final class CrossRootProject private (
     val root: Project,
-    val rootJVM: Project,
-    val rootJS: Project,
-    val rootNative: Project
+    val rootJVM: Option[Project],
+    val rootJS: Option[Project],
+    val rootNative: Option[Project]
 ) extends CompositeProject {
 
-  override def componentProjects: Seq[Project] = Seq(root, rootJVM, rootJS, rootNative)
+  override def componentProjects: Seq[Project] =
+    Seq(root) ++ rootJVM.toList ++ rootJS.toList ++ rootNative.toList
 
   def settings(ss: Def.SettingsDefinition*): CrossRootProject =
     new CrossRootProject(
@@ -61,7 +62,7 @@ final class CrossRootProject private (
   def disablePlugins(ps: AutoPlugin*): CrossRootProject =
     new CrossRootProject(
       root.disablePlugins(ps: _*),
-      rootJVM.disablePlugins(ps: _*),
+      rootJVM.map(_.disablePlugins(ps: _*))
       rootJS.disablePlugins(ps: _*),
       rootNative.disablePlugins(ps: _*)
     )
@@ -95,15 +96,31 @@ final class CrossRootProject private (
     )
   }
 
+  private def getOrMkRootJVM: Project =
+    rootJVM.getOrElse(
+      Project("rootJVM", file(".jvm")).enablePlugins(TypelevelCiJVMPlugin, NoPublishPlugin)
+    )
+
+  private def getOrMkRootJS: Project =
+    rootJS.getOrElse(
+      Project("rootJS", file(".js")).enablePlugins(TypelevelCiJSPlugin, NoPublishPlugin)
+    )
+
+  private def getOrMkRootNative: Project =
+    rootNative.getOrElse(
+      Project("rootNative", file(".native"))
+        .enablePlugins(TypelevelCiNativePlugin, NoPublishPlugin)
+    )
+
 }
 
 object CrossRootProject {
   private[sbt] def apply(): CrossRootProject = new CrossRootProject(
-    Project("root", file(".")),
-    Project("rootJVM", file(".jvm")),
-    Project("rootJS", file(".js")),
-    Project("rootNative", file(".native"))
-  ).enablePlugins(NoPublishPlugin, TypelevelCiCrossPlugin)
+    Project("root", file(".")).enablePlugins(NoPublishPlugin, TypelevelCiCrossPlugin),
+    None,
+    None,
+    None
+  )
 }
 
 /**
