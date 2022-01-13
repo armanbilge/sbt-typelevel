@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Laika 0.18.1 + Helium Theme" />
+    <title>sbt-typelevel</title>
+    
+    
+      <meta name="description" content="docs"/>
+    
+    
+    
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+    
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+    
+    <link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
+    <link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
+    <script src="helium/laika-helium.js"></script>
+    
+    
+    <script> /* for avoiding page load transitions */ </script>
+  </head>
+
+  <body>
+
+    <header id="top-bar">
+
+      <div class="row">
+        <a id="nav-icon">
+          <i class="icofont-laika" title="Navigation">&#xefa2;</i>
+        </a>
+        
+      </div>
+  
+      <a class="icon-link" href="#"><i class="icofont-laika" title="Home">&#xef47;</i></a>
+      
+      <span class="row links"></span>
+      
+    </header>
+
+    <nav id="sidebar">
+
+      <div class="row">
+        
+      </div>
+      
+      <ul class="nav-list">
+      </ul>
+      
+    </nav>
+
+    <div id="container">
+
+      <nav id="page-nav">
+        <p class="header"><a href="#">sbt-typelevel</a></p>
+        
+        <ul class="nav-list">
+          <li class="level1"><a href="#quick-start">Quick start</a></li>
+          <li class="level1"><a href="#faq">FAQ</a></li>
+          <li class="level2"><a href="#how-do-i-introduce-breaking-changes-intended-for-my-next-version">How do I introduce breaking changes intended for my next version?</a></li>
+          <li class="level2"><a href="#how-do-i-indicate-the-first-version-that-i-published-scala-3-artifacts-for">How do I indicate the first version that I published Scala 3 artifacts for?</a></li>
+          <li class="level2"><a href="#how-do-i-disable-fatal-warnings-in-ci">How do I disable fatal warnings in CI?</a></li>
+          <li class="level2"><a href="#how-do-i-publish-snapshots-in-ci">How do I publish snapshots in CI?</a></li>
+          <li class="level2"><a href="#what-happens-if-i-push-a-tag-and-commit-at-the-same-time">What happens if I push a tag and commit at the same time?</a></li>
+          <li class="level2"><a href="#how-do-i-split-my-ci-matrix-into-separate-jobs-for-jvm-js-etc">How do I split my CI matrix into separate jobs for JVM, JS, etc?</a></li>
+          <li class="level2"><a href="#how-do-i-publish-to-s01-oss-sonatype-org">How do I publish to <code>s01.oss.sonatype.org</code>?</a></li>
+          <li class="level1"><a href="#customization">Customization</a></li>
+          <li class="level2"><a href="#dependency-diagram">Dependency diagram</a></li>
+        </ul>
+        
+        <p class="footer"></p>
+      </nav>
+
+      <main class="content">
+
+        <h1 id="sbt-typelevel" class="title">sbt-typelevel</h1>
+        <p>sbt-typelevel helps Scala projects to publish early-semantically-versioned, binary-compatible artifacts to Sonatype/Maven from GitHub actions. It is a collection of plugins that work well individually and even better together.</p>
+        
+        <h2 id="quick-start" class="section"><a class="anchor-link left" href="#quick-start"><i class="icofont-laika">&#xef71;</i></a>Quick start</h2>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="comment">// Pick one, for plugins.sbt
+</span><span>
+</span><span class="comment">// Full service, batteries-included, let&#39;s go!
+</span><span class="identifier">addSbtPlugin</span><span>(</span><span class="string-literal">&quot;org.typelevel&quot;</span><span> % </span><span class="string-literal">&quot;sbt-typelevel&quot;</span><span> % </span><span class="string-literal">&quot;&lt;version&gt;&quot;</span><span>)
+
+</span><span class="comment">// Set me up for CI release, but don&#39;t touch my scalacOptions!
+</span><span class="identifier">addSbtPlugin</span><span>(</span><span class="string-literal">&quot;org.typelevel&quot;</span><span> % </span><span class="string-literal">&quot;sbt-typelevel-ci-release&quot;</span><span> % </span><span class="string-literal">&quot;&lt;version&gt;&quot;</span><span>)
+
+</span><span class="comment">// Then, in your build.sbt
+</span><span class="type-name">ThisBuild</span><span> / </span><span class="identifier">tlBaseVersion</span><span> := </span><span class="string-literal">&quot;0.4&quot;</span><span> </span><span class="comment">// your current series x.y
+</span><span class="type-name">ThisBuild</span><span> / </span><span class="identifier">developers</span><span> +=
+  </span><span class="identifier">tlGitHubDev</span><span>(</span><span class="string-literal">&quot;armanbilge&quot;</span><span>, </span><span class="string-literal">&quot;Arman Bilge&quot;</span><span>) </span><span class="comment">// your GitHub handle and name</span></code></pre>
+        <p>Then, on GitHub set the following secrets on your repository:</p>
+        <ul>
+          <li><code>SONATYPE_USERNAME</code> and <code>SONATYPE_PASSWORD</code></li>
+          <li><code>PGP_SECRET</code>: output of <code>gpg --armor --export-secret-keys $LONG_ID | base64</code></li>
+          <li><code>PGP_PASSPHRASE</code> (optional, use only if your key is passphrase-protected)</li>
+        </ul>
+        
+        <h2 id="faq" class="section"><a class="anchor-link left" href="#faq"><i class="icofont-laika">&#xef71;</i></a>FAQ</h2>
+        
+        <h3 id="how-do-i-introduce-breaking-changes-intended-for-my-next-version" class="section"><a class="anchor-link left" href="#how-do-i-introduce-breaking-changes-intended-for-my-next-version"><i class="icofont-laika">&#xef71;</i></a>How do I introduce breaking changes intended for my next version?</h3>
+        <p>Bump your <code>tlBaseVersion</code> to the next breaking-version according to early-semver, e.g. 0.7 to 0.8 or 4.2 to 5.0.</p>
+        
+        <h3 id="how-do-i-indicate-the-first-version-that-i-published-scala-3-artifacts-for" class="section"><a class="anchor-link left" href="#how-do-i-indicate-the-first-version-that-i-published-scala-3-artifacts-for"><i class="icofont-laika">&#xef71;</i></a>How do I indicate the first version that I published Scala 3 artifacts for?</h3>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="type-name">ThisBuild</span><span> / </span><span class="identifier">tlVersionIntroduced</span><span> := </span><span class="type-name">Map</span><span>(</span><span class="string-literal">&quot;3&quot;</span><span> -&gt; </span><span class="string-literal">&quot;0.4.2&quot;</span><span>)</span></code></pre>
+        
+        <h3 id="how-do-i-disable-fatal-warnings-in-ci" class="section"><a class="anchor-link left" href="#how-do-i-disable-fatal-warnings-in-ci"><i class="icofont-laika">&#xef71;</i></a>How do I disable fatal warnings in CI?</h3>
+        <p>If you are using <strong>sbt-typelevel</strong> fatal warnings are on by default in CI.</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="type-name">ThisBuild</span><span> / </span><span class="identifier">tlFatalWarningsInCi</span><span> := </span><span class="boolean-literal">false</span></code></pre>
+        <p>If you are only using <strong>sbt-typelevel-ci-release</strong>, you are completely in charge of your own <code>scalacOptions</code>, including fatal warnings.</p>
+        
+        <h3 id="how-do-i-publish-snapshots-in-ci" class="section"><a class="anchor-link left" href="#how-do-i-publish-snapshots-in-ci"><i class="icofont-laika">&#xef71;</i></a>How do I publish snapshots in CI?</h3>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="comment">// any branches you want snapshots of
+</span><span class="type-name">ThisBuild</span><span> / </span><span class="identifier">tlCiReleaseBranches</span><span> := </span><span class="type-name">Seq</span><span>(</span><span class="string-literal">&quot;main&quot;</span><span>)</span></code></pre>
+        
+        <h3 id="what-happens-if-i-push-a-tag-and-commit-at-the-same-time" class="section"><a class="anchor-link left" href="#what-happens-if-i-push-a-tag-and-commit-at-the-same-time"><i class="icofont-laika">&#xef71;</i></a>What happens if I push a tag and commit at the same time?</h3>
+        <p>It Just Works™.</p>
+        
+        <h3 id="how-do-i-split-my-ci-matrix-into-separate-jobs-for-jvm-js-etc" class="section"><a class="anchor-link left" href="#how-do-i-split-my-ci-matrix-into-separate-jobs-for-jvm-js-etc"><i class="icofont-laika">&#xef71;</i></a>How do I split my CI matrix into separate jobs for JVM, JS, etc?</h3>
+        <pre><code class="nohighlight"><span class="comment">// Before
+</span><span class="keyword">val</span><span> </span><span class="identifier">root</span><span> = </span><span class="identifier">project</span><span>.</span><span class="identifier">in</span><span>(</span><span class="identifier">file</span><span>(</span><span class="string-literal">&quot;.&quot;</span><span>))
+  .</span><span class="identifier">enablePlugins</span><span>(</span><span class="type-name">NoPublishPlugin</span><span>)
+  .</span><span class="identifier">aggregate</span><span>(
+    </span><span class="identifier">coreJVM</span><span>,
+    </span><span class="identifier">coreJS</span><span>,
+    </span><span class="identifier">io</span><span>.</span><span class="identifier">jvm</span><span>,
+    </span><span class="identifier">node</span><span>.</span><span class="identifier">js</span><span>,
+    </span><span class="identifier">io</span><span>.</span><span class="identifier">js</span><span>,
+    </span><span class="identifier">scodec</span><span>.</span><span class="identifier">jvm</span><span>,
+    </span><span class="identifier">scodec</span><span>.</span><span class="identifier">js</span><span>,
+    </span><span class="identifier">protocols</span><span>.</span><span class="identifier">jvm</span><span>,
+    </span><span class="identifier">protocols</span><span>.</span><span class="identifier">js</span><span>,
+    </span><span class="identifier">reactiveStreams</span><span>,
+    </span><span class="identifier">benchmark</span><span>
+  )
+
+</span><span class="comment">// After
+</span><span class="keyword">val</span><span> </span><span class="identifier">root</span><span> = </span><span class="identifier">tlCrossRootProject</span><span>
+  .</span><span class="identifier">aggregate</span><span>(</span><span class="identifier">core</span><span>, </span><span class="identifier">io</span><span>, </span><span class="identifier">node</span><span>, </span><span class="identifier">scodec</span><span>, </span><span class="identifier">protocols</span><span>, </span><span class="identifier">reactiveStreams</span><span>, </span><span class="identifier">benchmark</span><span>)</span></code></pre>
+        
+        <h3 id="how-do-i-publish-to-s01-oss-sonatype-org" class="section"><a class="anchor-link left" href="#how-do-i-publish-to-s01-oss-sonatype-org"><i class="icofont-laika">&#xef71;</i></a>How do I publish to <code>s01.oss.sonatype.org</code>?</h3>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="type-name">ThisBuild</span><span> / </span><span class="identifier">tlSonatypeUseLegacyHost</span><span> := </span><span class="boolean-literal">false</span></code></pre>
+        
+        <h2 id="customization" class="section"><a class="anchor-link left" href="#customization"><i class="icofont-laika">&#xef71;</i></a>Customization</h2>
+        <p>The complete list of plugins, settings, and utilities is given below. The <strong>sbt-typelevel-ci-release</strong> and <strong>sbt-typelevel</strong> super-plugins automatically load most of them. The diagram below shows their inter-dependencies.</p>
+        <p>Instead of using the super-plugins, for finer-grained control you can always add plugins individually to your project and even build your own custom super-plugin.</p>
+        <ul>
+          <li><strong>sbt-typelevel-no-publish</strong>, <code>NoPublishPlugin</code></li>
+          <li><strong>sbt-typelevel-kernel</strong>, <code>TypelevelKernelPlugin</code></li>
+        </ul>
+        <ul>
+          <li><code>tlIsScala3</code> (setting): true if <code>scalaVersion</code> is 3.x</li>
+        </ul>
+        <ul>
+          <li><code>tlReplaceCommandAlias</code> (method): replace a <code>addCommandAlias</code> definition</li>
+        </ul>
+        <ul>
+          <li><code>tlReleaseLocal</code> (command): alias for <code>+publishLocal</code></li>
+          <li><strong>sbt-typelevel-versioning</strong>, <code>TypelevelVersioningPlugin</code>: Establishes a git-based, early semantic versioning scheme</li>
+        </ul>
+        <ul>
+          <li><code>tlBaseVersion</code> (setting): the series your project is in. e.g., 0.2, 3.5</li>
+        </ul>
+        <ul>
+          <li><code>tlUntaggedAreSnapshots</code> (setting): If true, an untagged commit is given a snapshot version, e.g. <code>0.4-17-00218f9-SNAPSHOT</code>. If false, it is given a release version, e.g. <code>0.4-17-00218f9</code>. (default: true)</li>
+          <li><strong>sbt-typelevel-mima</strong>, <code>TypelevelMimaPlugin</code>: Determines previous MiMa artifacts via your <code>version</code> setting and git tags.</li>
+        </ul>
+        <ul>
+          <li><code>tlVersionIntroduced</code> (setting): A map <code>scalaBinaryVersion -&gt; version</code> e.g. <code>Map(&quot;2.13&quot; -&gt; &quot;1.5.2&quot;, &quot;3&quot; -&gt; &quot;1.7.1&quot;)</code> used to indicate that a particular <code>crossScalaVersions</code> value was introduced in a given version (default: empty).</li>
+          <li><strong>sbt-typelevel-sonatype</strong>, <code>TypelevelSonatypePlugin</code>.</li>
+        </ul>
+        <ul>
+          <li><code>tlRelease</code> (command): check binary-compatibility and <code>+publish</code> to sonatype</li>
+        </ul>
+        <ul>
+          <li><code>tlSonatypeUseLegacyHost</code> (setting): publish to <code>oss.sonatype.org</code> instead of <code>s01.oss.sonatype.org</code> (default: true)</li>
+          <li><strong>sbt-typelevel-settings</strong>, <code>TypelevelSettingsPlugin</code>: Good and/or opinionated defaults for scalac settings etc., inspired by sbt-tpolecat.</li>
+        </ul>
+        <ul>
+          <li><code>tlFatalWarnings</code> (setting): Convert compiler warnings into errors (default: false).</li>
+          <li><strong>sbt-typelevel-github</strong>, <code>TypelevelGitHubPlugin</code>, <code>TypelevelScalaJSGitHubPlugin</code>: populates boilerplate settings assuming you are using GitHub.</li>
+        </ul>
+        <ul>
+          <li><code>tlGitHubDev(user, fullName)</code> (method): Helper to create a <code>Developer</code> entry from a GitHub username.</li>
+          <li><strong>sbt-typelevel-ci</strong>, <code>TypelevelCiPlugin</code>: Sets up GitHub actions to run tests and check binary-compatibility in CI.</li>
+        </ul>
+        <ul>
+          <li><code>tlCrossRootProject</code> (method): helper to create a <code>root</code> project that can aggregate both <code>Project</code>s and <code>CrossProject</code>s. Automatically creates separate jobs in the CI matrix for each platform (JVM, JS, etc.).</li>
+          <li><strong>sbt-typelevel-sonatype-ci-release</strong>, <code>TypelevelSonatypeCiReleasePlugin</code>: Sets up GitHub actions to publish to Sonatype in CI.</li>
+        </ul>
+        <ul>
+          <li>Requires the <code>SONATYPE_USERNAME</code> and <code>SONATYPE_PASSWORD</code> secrets</li>
+        </ul>
+        <ul>
+          <li><code>tlCiReleaseTags</code> (setting): Controls whether or not v-prefixed tags should be released from CI (default true).</li>
+        </ul>
+        <ul>
+          <li><code>tlCiReleaseBranches</code>: The branches in your repository to release from in CI on every push. Depending on your versioning scheme, they will be either snapshots or (hash) releases. Leave this empty if you only want CI releases for tags. (default: <code>[]</code>).</li>
+          <li><strong>sbt-typelevel-ci-signing</strong>, <code>TypelevelCiSigningPlugin</code>: Sets up GitHub actions to sign your artifacts in CI.</li>
+        </ul>
+        <ul>
+          <li>Requires <code>PGP_SECRET</code> secret, with your base64-encoded PGP key</li>
+        </ul>
+        <ul>
+          <li>Optionally set the <code>PGP_PASSPHRASE</code> secret, but we do not recommend passphrase-protected keys for new projects. See discussion in <a href="https://github.com/typelevel/sbt-typelevel/discussions/9#discussioncomment-1251774">#9</a>.</li>
+          <li><strong>sbt-typelevel-ci-release</strong>, <code>TypelevelCiReleasePlugin</code>: The super-plugin that sets you up with versioning, mima, signing, and sonatype publishing, all in GitHub actions.</li>
+          <li><strong>sbt-typelevel</strong>, <code>TypelevelPlugin</code>: The super-super-plugin intended for bootstrapping the typical Typelevel project. Sets up CI release, scalac settings, headers, and formatting.</li>
+        </ul>
+        <ul>
+          <li><code>tlFatalWarningsInCi</code> (setting): Convert compiler warnings into errors under CI builds (default: true).</li>
+        </ul>
+        
+        <h3 id="dependency-diagram" class="section"><a class="anchor-link left" href="#dependency-diagram"><i class="icofont-laika">&#xef71;</i></a>Dependency diagram</h3>
+        <p>sbt-typelevel plugins are in red and the super-plugins are boxed.</p>
+        <p><img src="plugins.svg" alt=""></p>
+
+      </main>
+
+    </div>
+
+  </body>
+</html>
