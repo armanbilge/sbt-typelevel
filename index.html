@@ -76,6 +76,7 @@
           <li class="level2"><a href="#what-happens-if-i-push-a-tag-and-commit-at-the-same-time">What happens if I push a tag and commit at the same time?</a></li>
           <li class="level2"><a href="#how-do-i-split-my-ci-matrix-into-separate-jobs-for-jvm-js-etc">How do I split my CI matrix into separate jobs for JVM, JS, etc?</a></li>
           <li class="level2"><a href="#how-do-i-publish-to-s01-oss-sonatype-org">How do I publish to <code>s01.oss.sonatype.org</code>?</a></li>
+          <li class="level2"><a href="#how-do-i-publish-a-site-like-this-one">How do I publish a site like this one?</a></li>
           <li class="level1"><a href="#customization">Customization</a></li>
           <li class="level2"><a href="#dependency-diagram">Dependency diagram</a></li>
         </ul>
@@ -90,13 +91,13 @@
         
         <h2 id="quick-start" class="section">Quick start<a class="anchor-link right" href="#quick-start"><i class="icofont-laika">&#xef71;</i></a></h2>
         <p><a href="https://index.scala-lang.org/typelevel/sbt-typelevel/sbt-typelevel"><img src="https://index.scala-lang.org/typelevel/sbt-typelevel/sbt-typelevel/latest-by-scala-version.svg?targetType=Sbt" alt="sbt-typelevel Scala version support"></a></p>
-        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="comment">// Pick one, for plugins.sbt
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="comment">// Pick one, for project/plugins.sbt
 </span><span>
 </span><span class="comment">// Full service, batteries-included, let&#39;s go!
-</span><span class="identifier">addSbtPlugin</span><span>(</span><span class="string-literal">&quot;org.typelevel&quot;</span><span> % </span><span class="string-literal">&quot;sbt-typelevel&quot;</span><span> % </span><span class="string-literal">&quot;&lt;version&gt;&quot;</span><span>)
+</span><span class="identifier">addSbtPlugin</span><span>(</span><span class="string-literal">&quot;org.typelevel&quot;</span><span> % </span><span class="string-literal">&quot;sbt-typelevel&quot;</span><span> % </span><span class="string-literal">&quot;0.3&quot;</span><span>)
 
 </span><span class="comment">// Set me up for CI release, but don&#39;t touch my scalacOptions!
-</span><span class="identifier">addSbtPlugin</span><span>(</span><span class="string-literal">&quot;org.typelevel&quot;</span><span> % </span><span class="string-literal">&quot;sbt-typelevel-ci-release&quot;</span><span> % </span><span class="string-literal">&quot;&lt;version&gt;&quot;</span><span>)
+</span><span class="identifier">addSbtPlugin</span><span>(</span><span class="string-literal">&quot;org.typelevel&quot;</span><span> % </span><span class="string-literal">&quot;sbt-typelevel-ci-release&quot;</span><span> % </span><span class="string-literal">&quot;0.3&quot;</span><span>)
 
 </span><span class="comment">// Then, in your build.sbt
 </span><span class="type-name">ThisBuild</span><span> / </span><span class="identifier">tlBaseVersion</span><span> := </span><span class="string-literal">&quot;0.4&quot;</span><span> </span><span class="comment">// your current series x.y
@@ -154,6 +155,14 @@
         
         <h3 id="how-do-i-publish-to-s01-oss-sonatype-org" class="section">How do I publish to <code>s01.oss.sonatype.org</code>?<a class="anchor-link right" href="#how-do-i-publish-to-s01-oss-sonatype-org"><i class="icofont-laika">&#xef71;</i></a></h3>
         <pre class="keep-together pdf epub"><code class="nohighlight"><span class="type-name">ThisBuild</span><span> / </span><span class="identifier">tlSonatypeUseLegacyHost</span><span> := </span><span class="boolean-literal">false</span></code></pre>
+        
+        <h3 id="how-do-i-publish-a-site-like-this-one" class="section">How do I publish a site like this one?<a class="anchor-link right" href="#how-do-i-publish-a-site-like-this-one"><i class="icofont-laika">&#xef71;</i></a></h3>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="comment">// project/plugins.sbt
+</span><span class="identifier">addSbtPlugin</span><span>(</span><span class="string-literal">&quot;org.typelevel&quot;</span><span> % </span><span class="string-literal">&quot;sbt-typelevel-site&quot;</span><span> % </span><span class="string-literal">&quot;0.3&quot;</span><span>)
+</span><span class="comment">// build.sbt
+</span><span class="type-name">ThisBuild</span><span> / </span><span class="identifier">tlSitePublishBranch</span><span> := </span><span class="type-name">Some</span><span>(</span><span class="string-literal">&quot;main&quot;</span><span>) </span><span class="comment">// deploy docs from this branch (default: main)
+</span><span class="keyword">lazy</span><span> </span><span class="keyword">val</span><span> </span><span class="identifier">docs</span><span> = </span><span class="identifier">project</span><span>.</span><span class="identifier">in</span><span>(</span><span class="identifier">file</span><span>(</span><span class="string-literal">&quot;site&quot;</span><span>)).</span><span class="identifier">enablePlugins</span><span>(</span><span class="type-name">TypelevelSitePlugin</span><span>)</span></code></pre>
+        <p>Place your <code>.md</code> files in the <code>docs/</code> directory of your project. The site is generated using <a href="https://scalameta.org/mdoc/">mdoc</a> and <a href="https://planet42.github.io/Laika/">Laika</a> and published to the <code>gh-pages</code> branch on every push to the specified branch. Make sure to enable GitHub pages in your repo settings. To preview locally, run <code>docs/mdoc</code> and then <code>docs/laikaPreview</code>.</p>
         
         <h2 id="customization" class="section">Customization<a class="anchor-link right" href="#customization"><i class="icofont-laika">&#xef71;</i></a></h2>
         <p>The complete list of plugins, settings, and utilities is given below. The <strong>sbt-typelevel-ci-release</strong> and <strong>sbt-typelevel</strong> super-plugins automatically load most of them. The diagram below shows their inter-dependencies.</p>
@@ -231,12 +240,9 @@
           <li>
             <strong>sbt-typelevel-site</strong>, <code>TypelevelSitePlugin</code>: Sets up an <a href="https://scalameta.org/mdoc/">mdoc</a>/<a href="https://planet42.github.io/Laika/">Laika</a>-generated microsite, automatically published to GitHub pages in CI.
             <ul>
-              <li>
-                This plugin must be manually-enabled on your docs project. Place your <code>.md</code> files in the <code>docs/</code> directory.
-                <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">lazy</span><span> </span><span class="keyword">val</span><span> </span><span class="identifier">docs</span><span> = </span><span class="identifier">project</span><span>.</span><span class="identifier">in</span><span>(</span><span class="identifier">file</span><span>(</span><span class="string-literal">&quot;site&quot;</span><span>)).</span><span class="identifier">enablePlugins</span><span>(</span><span class="type-name">TypelevelSitePlugin</span><span>)</span></code></pre>
-              </li>
               <li><code>tlSitePublishBranch</code> (setting): The branch to publish the site from on every push. Set this to <code>None</code> if you only want to update the site on tag releases. (default: <code>main</code>)</li>
-              <li><code>tlApiDocsUrl</code> (setting): URL to the API docs. (default: <code>None</code>)</li>
+              <li><code>tlSiteApiUrl</code> (setting): URL to the API docs. (default: <code>None</code>)</li>
+              <li><code>tlSiteHeliumConfig</code> (setting): the Laika Helium config. (default: how the sbt-typelevel site looks)</li>
             </ul>
           </li>
         </ul>
