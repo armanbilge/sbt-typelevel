@@ -69,6 +69,7 @@
         <ul class="nav-list">
           <li class="level1"><a href="#quick-start">Quick start</a></li>
           <li class="level1"><a href="#faq">FAQ</a></li>
+          <li class="level2"><a href="#how-do-i-cut-a-release">How do I cut a release?</a></li>
           <li class="level2"><a href="#how-do-i-introduce-breaking-changes-intended-for-my-next-version">How do I introduce breaking changes intended for my next version?</a></li>
           <li class="level2"><a href="#how-do-i-indicate-the-first-version-that-i-published-scala-3-artifacts-for">How do I indicate the first version that I published Scala 3 artifacts for?</a></li>
           <li class="level2"><a href="#how-do-i-locally-prepare-my-pr-for-ci">How do I locally prepare my PR for CI?</a></li>
@@ -112,6 +113,10 @@
         </ul>
         
         <h2 id="faq" class="section">FAQ<a class="anchor-link right" href="#faq"><i class="icofont-laika">&#xef71;</i></a></h2>
+        
+        <h3 id="how-do-i-cut-a-release" class="section">How do I cut a release?<a class="anchor-link right" href="#how-do-i-cut-a-release"><i class="icofont-laika">&#xef71;</i></a></h3>
+        <p>Create a release on GitHub with a v-prefixed, semantically-versioned tag (or, tag a commit locally and push to GitHub). This will start a CI release. Example tags: <code>v0.4.2</code>, <code>v1.2.3</code>, <code>v1.0.0-M1</code>, <code>v1.2.0-RC2</code>. </p>
+        <p>It is also possible to run the release process entirely locally by invoking the <code>tlRelease</code> command, assuming that you have correctly configured your PGP keys and Sonatype credentials.</p>
         
         <h3 id="how-do-i-introduce-breaking-changes-intended-for-my-next-version" class="section">How do I introduce breaking changes intended for my next version?<a class="anchor-link right" href="#how-do-i-introduce-breaking-changes-intended-for-my-next-version"><i class="icofont-laika">&#xef71;</i></a></h3>
         <p>Bump your <code>tlBaseVersion</code> to the next breaking-version according to early-semver, e.g. 0.7 to 0.8 or 4.2 to 5.0.</p>
