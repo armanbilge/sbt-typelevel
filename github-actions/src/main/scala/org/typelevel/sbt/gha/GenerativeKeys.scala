@@ -49,6 +49,8 @@ trait GenerativeKeys {
     settingKey[Seq[MatrixInclude]]("A list of matrix inclusions (default: [])")
   lazy val githubWorkflowBuildMatrixExclusions =
     settingKey[Seq[MatrixExclude]]("A list of matrix exclusions (default: [])")
+  lazy val githubWorkflowBuildMatrixDisjointKeys =
+    settingKey[Set[String]]("A set of keys for dimensions of the matrix that separate your project into disjoint sets, e.g. JVM/JS sources. (default: {})")
   lazy val githubWorkflowBuildRunsOnExtraLabels = settingKey[Seq[String]](
     "A list of additional labels to append to each run of the matrix executions")
 
