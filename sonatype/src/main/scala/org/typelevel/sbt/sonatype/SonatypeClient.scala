@@ -124,7 +124,10 @@ private[sbt] object SonatypeClient {
         in =>
           Stream.exec(
             client.expect(
-              Request(PUT, Uri(path = path"deployByRepositoryId".concat(path)), body = in)
+              Request(
+                PUT,
+                Uri(path = (path"deployByRepositoryId" / repositoryId).concat(path)),
+                body = in)
             )
           )
 
