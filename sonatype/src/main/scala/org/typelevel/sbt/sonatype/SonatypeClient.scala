@@ -18,13 +18,15 @@ package org.typelevel.sbt.sonatype
 
 import cats.effect.Concurrent
 import cats.syntax.all._
-import org.http4s.client.Client
-import org.http4s.Uri
-import org.http4s.client.dsl.Http4sClientDsl
-import org.http4s.circe.CirceEntityCodec._
-import org.http4s.Method._
-import fs2.io.file.Path
+import fs2.INothing
+import fs2.Pipe
+import fs2.Stream
 import org.http4s.Credentials
+import org.http4s.Method._
+import org.http4s.Uri
+import org.http4s.circe.CirceEntityCodec._
+import org.http4s.client.Client
+import org.http4s.client.dsl.Http4sClientDsl
 import org.http4s.headers.Authorization
 import org.http4s.syntax.all._
 
@@ -70,13 +72,12 @@ private[sbt] trait SonatypeClient[F[_]] {
    */
   def promoteStagingRepository(profileId: String, promote: StagingPromote): F[Unit]
 
+  def deployByRepositoryId(repositoryId: String): Pipe[F, Byte, INothing]
+
   /**
-   * Handles the uploaded bundle files (multiple of them).
-   *
-   * @see
-   *   [[https://repository.sonatype.org/nexus-staging-plugin/default/docs/path__staging_bundle_upload.html]]
-   */
-  def uploadBundle(path: Path): F[Unit] = ???
+    * @see [[https://repository.sonatype.org/nexus-staging-plugin/default/docs/path__staging_repository_-repositoryIdKey-_activity.html]]
+    */
+  def getActivites(repositoryId: String): F[List[StagingActivity]]
 
 }
 
@@ -116,6 +117,12 @@ private[sbt] object SonatypeClient {
 
       def promoteStagingRepository(profileId: String, promote: StagingPromote): F[Unit] =
         client.expect(POST(PromoteRequest(promote), uri"profiles" / profileId / "promote"))
+
+      def deployByRepositoryId(repositoryId: String): Pipe[F, Byte, INothing] =
+        in => Stream.exec()
+
+      def getActivites(repositoryId: String): F[List[StagingActivity]] =
+        client.expect(GET(uri"repository" / repositoryId / "activity"))
 
     }
 

@@ -44,8 +44,9 @@ private[sbt] object StagingProfileRepository {
 }
 
 /**
-  * @see [[https://repository.sonatype.org/nexus-staging-plugin/default/docs/el_ns0_promoteRequest.html]]
-  */
+ * @see
+ *   [[https://repository.sonatype.org/nexus-staging-plugin/default/docs/el_ns0_promoteRequest.html]]
+ */
 private[sbt] final case class PromoteRequest(data: StagingPromote)
 
 private[sbt] object PromoteRequest {
@@ -53,12 +54,14 @@ private[sbt] object PromoteRequest {
 }
 
 /**
-  * @see [[https://repository.sonatype.org/nexus-staging-plugin/default/docs/el_ns0_promoteRequest.html]]
-  */
+ * @see
+ *   [[https://repository.sonatype.org/nexus-staging-plugin/default/docs/el_ns0_promoteRequest.html]]
+ */
 private[sbt] final case class PromoteResponse(data: StagingPromote)
 
 private[sbt] object PromoteResponse {
-  implicit def decoder: Decoder[PromoteResponse] = Decoder.forProduct1("data")(PromoteResponse(_))
+  implicit def decoder: Decoder[PromoteResponse] =
+    Decoder.forProduct1("data")(PromoteResponse(_))
 }
 
 /**
@@ -73,10 +76,29 @@ private[sbt] final case class StagingPromote(
 
 private[sbt] object StagingPromote {
   implicit def decoder: Decoder[StagingPromote] =
-    Decoder.forProduct3("stagedRepositoryId", "description", "targetRepositoryId")(StagingPromote(_, _, _))
+    Decoder.forProduct3("stagedRepositoryId", "description", "targetRepositoryId")(
+      StagingPromote(_, _, _))
 
   implicit def encoder: Encoder[StagingPromote] =
     Encoder.forProduct3("stagedRepositoryId", "description", "targetRepositoryId") { x =>
       (x.stagedRepositoryId, x.description, x.targetRepositoryId)
     }
+}
+
+private[sbt] final case class StagingActivity(
+    name: String,
+    events: List[ActivityEvent]
+)
+
+private[sbt] object StagingActivity {
+  implicit def decoder: Decoder[StagingActivity] =
+    Decoder.forProduct2("name", "events")(StagingActivity(_, _))
+}
+
+private[sbt] final case class ActivityEvent(
+    name: String
+)
+
+private[sbt] object ActivityEvent {
+  implicit def decoder: Decoder[ActivityEvent] = Decoder.forProduct1("name")(ActivityEvent(_))
 }
