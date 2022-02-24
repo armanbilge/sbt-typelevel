@@ -23,6 +23,7 @@ import fs2.Pipe
 import fs2.Stream
 import org.http4s.Credentials
 import org.http4s.Method._
+import org.http4s.Request
 import org.http4s.Uri
 import org.http4s.circe.CirceEntityCodec._
 import org.http4s.client.Client
@@ -72,11 +73,12 @@ private[sbt] trait SonatypeClient[F[_]] {
    */
   def promoteStagingRepository(profileId: String, promote: StagingPromote): F[Unit]
 
-  def deployByRepositoryId(repositoryId: String): Pipe[F, Byte, INothing]
+  def deployByRepositoryId(repositoryId: String, path: Uri.Path): Pipe[F, Byte, INothing]
 
   /**
-    * @see [[https://repository.sonatype.org/nexus-staging-plugin/default/docs/path__staging_repository_-repositoryIdKey-_activity.html]]
-    */
+   * @see
+   *   [[https://repository.sonatype.org/nexus-staging-plugin/default/docs/path__staging_repository_-repositoryIdKey-_activity.html]]
+   */
   def getActivites(repositoryId: String): F[List[StagingActivity]]
 
 }
@@ -118,8 +120,13 @@ private[sbt] object SonatypeClient {
       def promoteStagingRepository(profileId: String, promote: StagingPromote): F[Unit] =
         client.expect(POST(PromoteRequest(promote), uri"profiles" / profileId / "promote"))
 
-      def deployByRepositoryId(repositoryId: String): Pipe[F, Byte, INothing] =
-        in => Stream.exec()
+      def deployByRepositoryId(repositoryId: String, path: Uri.Path): Pipe[F, Byte, INothing] =
+        in =>
+          Stream.exec(
+            client.expect(
+              Request(PUT, Uri(path = path"deployByRepositoryId".concat(path)), body = in)
+            )
+          )
 
       def getActivites(repositoryId: String): F[List[StagingActivity]] =
         client.expect(GET(uri"repository" / repositoryId / "activity"))
