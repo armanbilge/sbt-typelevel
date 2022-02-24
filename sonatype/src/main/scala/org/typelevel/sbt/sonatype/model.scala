@@ -21,6 +21,32 @@ import io.circe.Encoder
 
 /**
  * @see
+ *   [[https://repository.sonatype.org/nexus-staging-plugin/default/docs/el_ns0_stagingProfiles.html]]
+ */
+private[sbt] final case class StagingProfiles(data: List[StagingProfile])
+
+private[sbt] object StagingProfiles {
+  implicit def decoder: Decoder[StagingProfiles] =
+    Decoder.forProduct1("data")(StagingProfiles(_))
+}
+
+/**
+ * @see
+ *   [[https://repository.sonatype.org/nexus-staging-plugin/default/docs/ns0_stagingProfile.html]]
+ */
+private[sbt] final case class StagingProfile(
+    id: String,
+    name: String,
+    repositoryTargetId: String
+)
+
+private[sbt] object StagingProfile {
+  implicit def decoder: Decoder[StagingProfile] =
+    Decoder.forProduct3("id", "name", "repositoryTargetId")(StagingProfile(_, _, _))
+}
+
+/**
+ * @see
  *   [[https://repository.sonatype.org/nexus-staging-plugin/default/docs/el_ns0_stagingRepositories.html]]
  */
 private[sbt] final case class StagingRepositories(data: List[StagingProfileRepository])
@@ -35,12 +61,13 @@ private[sbt] object StagingRepositories {
  *   [[https://repository.sonatype.org/nexus-staging-plugin/default/docs/ns0_stagingProfileRepository.html]]
  */
 private[sbt] final case class StagingProfileRepository(
-    description: Option[String]
+    description: String,
+    repositoryId: Option[String]
 )
 
 private[sbt] object StagingProfileRepository {
   implicit def decoder: Decoder[StagingProfileRepository] =
-    Decoder.forProduct1("description")(StagingProfileRepository(_))
+    Decoder.forProduct2("description", "repositoryId")(StagingProfileRepository(_, _))
 }
 
 /**
@@ -69,9 +96,9 @@ private[sbt] object PromoteResponse {
  *   [[https://repository.sonatype.org/nexus-staging-plugin/default/docs/ns0_stagingPromote.html]]
  */
 private[sbt] final case class StagingPromote(
-    stagedRepositoryId: Option[String],
-    description: Option[String],
-    targetRepositoryId: Option[String]
+    stagedRepositoryId: String,
+    description: String,
+    targetRepositoryId: String
 )
 
 private[sbt] object StagingPromote {

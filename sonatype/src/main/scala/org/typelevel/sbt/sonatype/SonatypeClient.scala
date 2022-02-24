@@ -33,11 +33,13 @@ import org.http4s.syntax.all._
 
 private[sbt] trait SonatypeClient[F[_]] {
 
+  def getProfiles: F[List[StagingProfile]]
+
   /**
    * @see
    *   [[https://repository.sonatype.org/nexus-staging-plugin/default/docs/path__staging_profile_repositories_-profileIdKey-.html]]
    */
-  def getProfileRepositories(profileId: String): F[StagingRepositories]
+  def getProfileRepositories(profileId: String): F[List[StagingProfileRepository]]
 
   /**
    * Entry point to trigger staging repository creation.
@@ -100,8 +102,11 @@ private[sbt] object SonatypeClient {
   private def impl[F[_]: Concurrent](client: Client[F]): SonatypeClient[F] =
     new SonatypeClient[F] with Http4sClientDsl[F] {
 
-      def getProfileRepositories(profileId: String): F[StagingRepositories] =
-        client.expect(uri"profile_repositories" / profileId)
+      def getProfiles: F[List[StagingProfile]] =
+        client.expect[StagingProfiles](uri"profiles").map(_.data)
+
+      def getProfileRepositories(profileId: String): F[List[StagingProfileRepository]] =
+        client.expect[StagingRepositories](uri"profile_repositories" / profileId).map(_.data)
 
       def startStagingRepository(
           profileId: String,
