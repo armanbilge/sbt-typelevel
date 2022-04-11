@@ -21,6 +21,7 @@ import org.typelevel.sbt.gha.GenerativePlugin
 import org.typelevel.sbt.gha.GitHubActionsPlugin
 import de.heikoseeberger.sbtheader.HeaderPlugin
 
+import scala.annotation.nowarn
 import scala.collection.immutable
 
 object TypelevelPlugin extends AutoPlugin {
@@ -35,8 +36,9 @@ object TypelevelPlugin extends AutoPlugin {
   override def trigger = allRequirements
 
   object autoImport {
+    @deprecated("Use `tlFatalWarnings := false` instead", "0.4.8")
     lazy val tlFatalWarningsInCi = settingKey[Boolean](
-      "Convert compiler warnings into errors under CI builds (default: true)")
+      "Convert compiler warnings into errors under CI builds (default: true). Deprecated: use `tlFatalWarnings := false` instead")
   }
 
   import autoImport._
@@ -47,7 +49,7 @@ object TypelevelPlugin extends AutoPlugin {
   import GitHubActionsPlugin.autoImport._
 
   override def globalSettings = Seq(
-    tlFatalWarningsInCi := true
+    tlFatalWarningsInCi := true: @nowarn
   )
 
   override def buildSettings = Seq(
@@ -63,7 +65,8 @@ object TypelevelPlugin extends AutoPlugin {
     startYear := Some(java.time.YearMonth.now().getYear()),
     licenses += "Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0.txt"),
     tlCiReleaseBranches := Seq("main"),
-    Def.derive(tlFatalWarnings := (tlFatalWarningsInCi.value && githubIsWorkflowBuild.value)),
+    Def.derive(
+      tlFatalWarnings := (tlFatalWarningsInCi.value && githubIsWorkflowBuild.value)): @nowarn,
     githubWorkflowBuildMatrixExclusions ++= {
       val defaultScala = (ThisBuild / scalaVersion).value
       for {
