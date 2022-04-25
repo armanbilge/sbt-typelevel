@@ -18,12 +18,9 @@ package org.typelevel.sbt.sonatype
 
 import cats.effect.Concurrent
 import cats.syntax.all._
-import fs2.INothing
-import fs2.Pipe
-import fs2.Stream
 import org.http4s.Credentials
+import org.http4s.EntityEncoder
 import org.http4s.Method._
-import org.http4s.Request
 import org.http4s.Uri
 import org.http4s.circe.CirceEntityCodec._
 import org.http4s.client.Client
@@ -75,7 +72,8 @@ private[sbt] trait SonatypeClient[F[_]] {
    */
   def promoteStagingRepository(profileId: String, promote: StagingPromote): F[Unit]
 
-  def deployByRepositoryId(repositoryId: String, path: Uri.Path): Pipe[F, Byte, INothing]
+  def deployByRepositoryId[A](repositoryId: String, path: Uri.Path)(a: A)(
+      implicit encoder: EntityEncoder[F, A]): F[Unit]
 
   /**
    * @see
@@ -125,16 +123,10 @@ private[sbt] object SonatypeClient {
       def promoteStagingRepository(profileId: String, promote: StagingPromote): F[Unit] =
         client.expect(POST(PromoteRequest(promote), uri"profiles" / profileId / "promote"))
 
-      def deployByRepositoryId(repositoryId: String, path: Uri.Path): Pipe[F, Byte, INothing] =
-        in =>
-          Stream.exec(
-            client.expect(
-              Request(
-                PUT,
-                Uri(path = (path"deployByRepositoryId" / repositoryId).concat(path)),
-                body = in)
-            )
-          )
+      def deployByRepositoryId[A](repositoryId: String, path: Uri.Path)(body: A)(
+          implicit encoder: EntityEncoder[F, A]): F[Unit] =
+        client.expect(
+          PUT(body, Uri(path = (path"deployByRepositoryId" / repositoryId).concat(path))))
 
       def getActivites(repositoryId: String): F[List[StagingActivity]] =
         client.expect(GET(uri"repository" / repositoryId / "activity"))

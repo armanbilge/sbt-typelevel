@@ -16,9 +16,11 @@
 
 package org.typelevel.sbt.sonatype
 
+import fs2.io.file.Files
 import fs2.io.file.Path
-import cats.MonadThrow
+import cats.effect.Concurrent
 import cats.syntax.all._
+import org.http4s.Uri
 
 private[sbt] trait SonatypeService[F[_]] {
 
@@ -32,14 +34,15 @@ private[sbt] trait SonatypeService[F[_]] {
 
 private[sbt] object SonatypeService {
 
-  def apply[F[_]](client: SonatypeClient[F], profileName: String)(
-      implicit F: MonadThrow[F]): SonatypeService[F] = new SonatypeService[F] {
+  def apply[F[_]: Files](client: SonatypeClient[F], profileName: String)(
+      implicit F: Concurrent[F]): SonatypeService[F] = new SonatypeService[F] {
 
     def releaseBundle(session: String, bundle: Path): F[Unit] = {
       for {
         profile <- stagingProfile
         _ <- dropIfExists(profile, session)
-        _ <- startStaging(profile, session)
+        promote <- startStaging(profile, session)
+        _ <- uploadBundle(promote, bundle)
       } yield ()
     }
 
@@ -74,6 +77,18 @@ private[sbt] object SonatypeService {
         profile.id,
         StagingPromote(None, description = session, None)
       )
+
+    def uploadBundle(promote: StagingPromote, bundle: Path): F[Unit] =
+      Files[F]
+        .walk(bundle)
+        .evalFilter(Files[F].isRegularFile(_))
+        .parEvalMapUnordered(Int.MaxValue) { path =>
+          client.deployByRepositoryId(
+            promote.stagedRepositoryId.get,
+            Uri.Path.unsafeFromString(path.toString))(path)
+        }
+        .compile
+        .drain
 
   }
 
