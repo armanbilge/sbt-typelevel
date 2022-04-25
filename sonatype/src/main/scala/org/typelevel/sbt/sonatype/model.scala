@@ -96,9 +96,9 @@ private[sbt] object PromoteResponse {
  *   [[https://repository.sonatype.org/nexus-staging-plugin/default/docs/ns0_stagingPromote.html]]
  */
 private[sbt] final case class StagingPromote(
-    stagedRepositoryId: String,
+    stagedRepositoryId: Option[String],
     description: String,
-    targetRepositoryId: String
+    targetRepositoryId: Option[String]
 )
 
 private[sbt] object StagingPromote {

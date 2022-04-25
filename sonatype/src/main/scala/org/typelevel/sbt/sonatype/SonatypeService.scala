@@ -39,7 +39,7 @@ private[sbt] object SonatypeService {
       for {
         profile <- stagingProfile
         _ <- dropIfExists(profile, session)
-        _ <- client.startStagingRepository(profile.id, )
+        // _ <- client.startStagingRepository(profile.id, )
       } yield ()
     }
 
@@ -56,26 +56,26 @@ private[sbt] object SonatypeService {
     def dropIfExists(profile: StagingProfile, session: String): F[Unit] =
       client.getProfileRepositories(profile.id).flatMap { repos =>
         repos.traverse_ {
-          case repo if repo.description.contains(session) =>
+          case StagingProfileRepository(`session`, Some(repositoryId)) =>
             client.dropStagingRepository(
               profile.id,
               StagingPromote(
-                stagedRepositoryId = repo.repositoryId,
-                targetRepositoryId = profile.repositoryTargetId,
-                description = repo.description
+                stagedRepositoryId = Some(repositoryId),
+                targetRepositoryId = Some(profile.repositoryTargetId),
+                description = session
               )
             )
           case _ => F.unit
         }
       }
 
-      def startStaging(profile: StagingProfile, session: String): F[Unit] =
-        client.startStagingRepository(
+    def startStaging(profile: StagingProfile, session: String): F[Unit] =
+      client
+        .startStagingRepository(
           profile.id,
-          StagingPromote(
-            
-          )
+          StagingPromote(None, description = session, None)
         )
+        .void
 
   }
 
