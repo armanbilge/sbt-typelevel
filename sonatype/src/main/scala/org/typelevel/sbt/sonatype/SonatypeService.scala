@@ -39,7 +39,7 @@ private[sbt] object SonatypeService {
       for {
         profile <- stagingProfile
         _ <- dropIfExists(profile, session)
-        // _ <- client.startStagingRepository(profile.id, )
+        _ <- startStaging(profile, session)
       } yield ()
     }
 
@@ -69,13 +69,11 @@ private[sbt] object SonatypeService {
         }
       }
 
-    def startStaging(profile: StagingProfile, session: String): F[Unit] =
-      client
-        .startStagingRepository(
-          profile.id,
-          StagingPromote(None, description = session, None)
-        )
-        .void
+    def startStaging(profile: StagingProfile, session: String): F[StagingPromote] =
+      client.startStagingRepository(
+        profile.id,
+        StagingPromote(None, description = session, None)
+      )
 
   }
 
