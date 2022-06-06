@@ -532,7 +532,8 @@ ${indent(jobs.map(compileJob(_, sbt)).mkString("\n\n"), 1)}
     githubWorkflowTargetTags := Seq(),
     githubWorkflowTargetPaths := Paths.None,
     githubWorkflowEnv := Map("GITHUB_TOKEN" -> s"$${{ secrets.GITHUB_TOKEN }}"),
-    githubWorkflowAddedJobs := Seq()
+    githubWorkflowAddedJobs := Seq(),
+    githubWorkflowAggregateJobs := Set("build")
   )
 
   private lazy val internalTargetAggregation =
@@ -703,6 +704,17 @@ ${indent(jobs.map(compileJob(_, sbt)).mkString("\n\n"), 1)}
         else
           githubWorkflowGeneratedUploadSteps.value.toList
 
+      val aggregateJobOpt = Seq(
+        WorkflowJob(
+          "aggregate",
+          "Aggregate Status Check",
+          Nil,
+          scalas = Nil,
+          javas = Nil,
+          needs = githubWorkflowAggregateJobs.value.toList
+        )
+      )
+
       val publishJobOpt = Seq(
         WorkflowJob(
           "publish",
@@ -718,28 +730,27 @@ ${indent(jobs.map(compileJob(_, sbt)).mkString("\n\n"), 1)}
           needs = List("build")
         )).filter(_ => !githubWorkflowPublishTargetBranches.value.isEmpty)
 
-      Seq(
-        WorkflowJob(
-          "build",
-          "Build and Test",
-          githubWorkflowJobSetup.value.toList :::
-            githubWorkflowBuildPreamble.value.toList :::
-            WorkflowStep.Sbt(
-              List("project /", "githubWorkflowCheck"),
-              name = Some("Check that workflows are up to date")) ::
-            githubWorkflowBuild.value.toList :::
-            githubWorkflowBuildPostamble.value.toList :::
-            uploadStepsOpt,
-          sbtStepPreamble = githubWorkflowBuildSbtStepPreamble.value.toList,
-          oses = githubWorkflowOSes.value.toList,
-          scalas = githubWorkflowScalaVersions.value.toList,
-          javas = githubWorkflowJavaVersions.value.toList,
-          matrixFailFast = githubWorkflowBuildMatrixFailFast.value,
-          matrixAdds = githubWorkflowBuildMatrixAdditions.value,
-          matrixIncs = githubWorkflowBuildMatrixInclusions.value.toList,
-          matrixExcs = githubWorkflowBuildMatrixExclusions.value.toList,
-          runsOnExtraLabels = githubWorkflowBuildRunsOnExtraLabels.value.toList
-        )) ++ publishJobOpt ++ githubWorkflowAddedJobs.value
+      Seq(WorkflowJob(
+        "build",
+        "Build and Test",
+        githubWorkflowJobSetup.value.toList :::
+          githubWorkflowBuildPreamble.value.toList :::
+          WorkflowStep.Sbt(
+            List("project /", "githubWorkflowCheck"),
+            name = Some("Check that workflows are up to date")) ::
+          githubWorkflowBuild.value.toList :::
+          githubWorkflowBuildPostamble.value.toList :::
+          uploadStepsOpt,
+        sbtStepPreamble = githubWorkflowBuildSbtStepPreamble.value.toList,
+        oses = githubWorkflowOSes.value.toList,
+        scalas = githubWorkflowScalaVersions.value.toList,
+        javas = githubWorkflowJavaVersions.value.toList,
+        matrixFailFast = githubWorkflowBuildMatrixFailFast.value,
+        matrixAdds = githubWorkflowBuildMatrixAdditions.value,
+        matrixIncs = githubWorkflowBuildMatrixInclusions.value.toList,
+        matrixExcs = githubWorkflowBuildMatrixExclusions.value.toList,
+        runsOnExtraLabels = githubWorkflowBuildRunsOnExtraLabels.value.toList
+      )) ++ publishJobOpt ++ githubWorkflowAddedJobs.value ++ aggregateJobOpt
     }
   )
 

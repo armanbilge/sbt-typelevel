@@ -102,6 +102,10 @@ trait GenerativeKeys {
     s"A map of static environment variable assignments global to the workflow (default: { GITHUB_TOKEN: $${{ secrets.GITHUB_TOKEN }} })")
   lazy val githubWorkflowAddedJobs = settingKey[Seq[WorkflowJob]](
     "A list of additional jobs to add to the CI workflow (default: [])")
+
+  lazy val githubWorkflowAggregateJobs = settingKey[Set[String]](
+    s"A set of job ids to depend on in an aggregate job. This is a no-op job that is useful for enabling a required status check under a stable name. If empty, this job is not generated (default: $${{ build }})")
+
 }
 
 object GenerativeKeys extends GenerativeKeys

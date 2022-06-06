@@ -223,3 +223,15 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: mdocs/target/docs/site
           keep_files: true
+
+  aggregate:
+    name: Aggregate Job
+    needs: [build]
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        scala: []
+        java: []
+    runs-on: ${{ matrix.os }}
+    steps:
+      
