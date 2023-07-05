@@ -367,13 +367,31 @@ object TypelevelSettingsPlugin extends AutoPlugin {
 
   private val javaApiMappings = {
     // scaladoc doesn't support this automatically before 2.13
-    doc / apiMappings := {
-      val old = (doc / apiMappings).value
+    Compile / doc / apiMappings := {
+      val old = (Compile / doc / apiMappings).value
 
       val baseUrl = tlJdkRelease.value.getOrElse(javaMajorVersion) match {
         case v if v < 11 => url(s"https://docs.oracle.com/javase/${v}/docs/api/")
         case v => url(s"https://docs.oracle.com/en/java/javase/${v}/docs/api/java.base/")
       }
+
+      val rtJar = {
+        val bootClasspath = System.getProperty("sun.boot.class.path")
+        if (bootClasspath != null) {
+          // JDK <= 8, there is an rt.jar (or classes.jar) on the boot classpath
+          val jars = bootClasspath.split(java.io.File.pathSeparator)
+          def matches(path: String, name: String): Boolean =
+            path.endsWith(s"${java.io.File.separator}$name.jar")
+          val jar = jars
+            .find(matches(_, "rt")) // most JREs
+            .get
+          Some(file(jar))
+        } else {
+          // JDK >= 9, maybe sbt gives us a fake rt.jar in `scala.ext.dirs`
+          val scalaExtDirs = Option(System.getProperty("scala.ext.dirs"))
+          scalaExtDirs.map(extDirs => file(extDirs) / "rt.jar")
+        }
+      }.filter(_.exists).fold[Map[File, URL]](Map.empty)(rtJar => Map(rtJar -> baseUrl))
 
       val runtimeMXBean = ManagementFactory.getRuntimeMXBean
       val oldSchool = Try(
@@ -385,9 +403,11 @@ object TypelevelSettingsPlugin extends AutoPlugin {
             .toMap
         else Map.empty
       ).getOrElse(Map.empty)
+
       val newSchool = Map(file("/modules/java.base") -> baseUrl)
+
       // Latest one wins.  We are providing a fallback.
-      oldSchool ++ newSchool ++ old
+      rtJar ++ oldSchool ++ newSchool ++ old
     }
   }
 
