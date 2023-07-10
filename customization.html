@@ -40,7 +40,7 @@
 
   <body>
 
-    <header id="top-bar">
+    <header id="top-bar" class="light-default dark-default">
 
   <div class="row">
     <a id="nav-icon">
@@ -140,6 +140,7 @@
     <li class="level2 nav-leaf"><a href="#sbt-typelevel-sonatype">sbt-typelevel-sonatype</a></li>
     <li class="level2 nav-leaf"><a href="#sbt-typelevel-settings">sbt-typelevel-settings</a></li>
     <li class="level2 nav-leaf"><a href="#sbt-typelevel-github">sbt-typelevel-github</a></li>
+    <li class="level2 nav-leaf"><a href="#sbt-typelevel-github-actions">sbt-typelevel-github-actions</a></li>
     <li class="level2 nav-leaf"><a href="#sbt-typelevel-ci">sbt-typelevel-ci</a></li>
     <li class="level2 nav-leaf"><a href="#sbt-typelevel-sonatype-ci-release">sbt-typelevel-sonatype-ci-release</a></li>
     <li class="level2 nav-leaf"><a href="#sbt-typelevel-ci-signing">sbt-typelevel-ci-signing</a></li>
@@ -170,7 +171,6 @@
         <p><code>TypelevelKernelPlugin</code></p>
         <ul>
           <li><code>tlIsScala3</code> (setting): <code>true</code>, if <code>scalaVersion</code> is 3.x.</li>
-          <li><code>tlSkipIrrelevantScalas</code> (setting): <code>true</code>, if should <code>skip</code> for <code>scalaVersion</code> not in <code>crossScalaVersions</code>.</li>
           <li><code>tlReplaceCommandAlias</code> (method): Replace a <code>addCommandAlias</code> definition.</li>
           <li><code>tlReleaseLocal</code> (command): Alias for <code>+publishLocal</code>.</li>
         </ul>
@@ -213,6 +213,11 @@
         <p><code>TypelevelScalaJSGitHubPlugin</code>: Points your sourcemaps to GitHub permalinks. Only activated for Scala.js projects.</p>
         <p><code>TypelevelScalaNativeGitHubPlugin</code>: Points your sourcemaps to GitHub permalinks. Only activated for Scala Native projects.</p>
         
+        <h3 id="sbt-typelevel-github-actions" class="section"><a class="anchor-link left" href="#sbt-typelevel-github-actions"><i class="icofont-laika link">&#xef71;</i></a>sbt-typelevel-github-actions</h3>
+        <p><code>GitHubActionsPlugin</code>: Provides general functionality, giving builds the ability to introspect on their host workflow and whether or not they are running in GitHub Actions.</p>
+        <p><code>GenerativePlugin</code>: Makes it easier to maintain GitHub Actions builds for sbt projects by generating ci.yml and clean.yml workflow definition files.</p>
+        <p>Both plugins are documented in <a href="gha.html"><strong>sbt-typelevel-github-actions</strong></a>.</p>
+        
         <h3 id="sbt-typelevel-ci" class="section"><a class="anchor-link left" href="#sbt-typelevel-ci"><i class="icofont-laika link">&#xef71;</i></a>sbt-typelevel-ci</h3>
         <p><code>TypelevelCiPlugin</code>: Sets up GitHub actions to run tests and submit dependencies for vulnerability scanning. You can optionally enable checks for headers, formatting, scalafix, MiMa, and scaladoc.</p>
         <ul>
@@ -243,7 +248,12 @@
         </ul>
         
         <h3 id="sbt-typelevel-ci-release" class="section"><a class="anchor-link left" href="#sbt-typelevel-ci-release"><i class="icofont-laika link">&#xef71;</i></a>sbt-typelevel-ci-release</h3>
-        <p><code>TypelevelCiReleasePlugin</code>: The super-plugin that sets you up with versioning, mima, signing, and sonatype publishing, all in GitHub actions.</p>
+        <p><code>TypelevelCiReleasePlugin</code>: The super-plugin that sets you up with versioning, mima, signing, and sonatype publishing, all in GitHub actions.
+        Using this plugin the following 2 settings have new default values:</p>
+        <ul>
+          <li><code>tlCiMimaBinaryIssueCheck</code> (setting): Whether to do MiMa binary issues check in CI (default: <code>true</code>).</li>
+          <li><code>tlCiDocCheck</code> (setting): Whether to build API docs in CI (default: <code>true</code>).</li>
+        </ul>
         
         <h3 id="sbt-typelevel-scalafix" class="section"><a class="anchor-link left" href="#sbt-typelevel-scalafix"><i class="icofont-laika link">&#xef71;</i></a>sbt-typelevel-scalafix</h3>
         <p><code>TypelevelScalafixPlugin</code></p>
