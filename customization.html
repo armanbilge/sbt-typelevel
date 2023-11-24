@@ -277,6 +277,7 @@
           <li><code>tlSiteApiModule</code> (setting): The module that publishes API docs (default: <code>None</code>).</li>
           <li><code>tlSiteApiPackage</code> (setting): The top-level package for your API docs (e.g. org.typlevel.sbt).</li>
           <li><code>tlSiteKeepFiles</code> (setting): Whether to keep existing files when deploying site (default: <code>true</code>).</li>
+          <li><code>tlSiteJavaVersion</code> (setting): The Java version to use for the site job, must be &gt;= 11 (default: first compatible choice from <code>githubWorkflowJavaVersions</code>, otherwise Temurin 11).</li>
           <li><code>tlSiteGenerate</code> (setting): A sequence of workflow steps which generates the site (default: <code>[Sbt(List(&quot;tlSite&quot;))]</code>).</li>
           <li><code>tlSitePublish</code> (setting): A sequence of workflow steps which publishes the site (default: <code>peaceiris/actions-gh-pages</code>).</li>
           <li><code>tlSitePublishBranch</code> (setting): The branch to publish the site from on every push. Set this to <code>None</code> if you only want to update the site on tag releases. (default: <code>main</code>)</li>
