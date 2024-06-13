@@ -82,6 +82,14 @@ pull_request_rules:
       add:
       - github-actions
       remove: []
+- name: Label input PRs
+  conditions:
+  - files~=^versioning-fixes/input/
+  actions:
+    label:
+      add:
+      - input
+      remove: []
 - name: Label kernel PRs
   conditions:
   - files~=^kernel/
@@ -122,6 +130,22 @@ pull_request_rules:
       add:
       - no-publish
       remove: []
+- name: Label output PRs
+  conditions:
+  - files~=^versioning-fixes/output/
+  actions:
+    label:
+      add:
+      - output
+      remove: []
+- name: Label rules PRs
+  conditions:
+  - files~=^versioning-fixes/rules/
+  actions:
+    label:
+      add:
+      - rules
+      remove: []
 - name: Label scalafix PRs
   conditions:
   - files~=^scalafix/
@@ -161,6 +185,14 @@ pull_request_rules:
     label:
       add:
       - sonatype-ci-release
+      remove: []
+- name: Label tests PRs
+  conditions:
+  - files~=^versioning-fixes/tests/
+  actions:
+    label:
+      add:
+      - tests
       remove: []
 - name: Label versioning PRs
   conditions:

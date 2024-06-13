@@ -73,6 +73,7 @@ lazy val `sbt-typelevel` = tlCrossRootProject.aggregate(
   githubActions,
   mergify,
   versioning,
+  versioningFixes,
   mima,
   sonatype,
   scalafix,
@@ -140,6 +141,13 @@ lazy val versioning = project
     name := "sbt-typelevel-versioning"
   )
   .dependsOn(kernel)
+
+lazy val versioningFixes = tlScalafixProject
+  .in(file("versioning-fixes"))
+  .rulesSettings(
+    name := "sbt-typelevel-versioning-fixes",
+    startYear := Some(2024)
+  )
 
 lazy val mima = project
   .in(file("mima"))
